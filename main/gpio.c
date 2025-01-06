@@ -3,6 +3,8 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 
+#include <esp_log.h>
+
 #define LED_PIN GPIO_NUM_18
 #define BUTTON_PIN GPIO_NUM_19
 #define GPIO_NUM 2
@@ -14,7 +16,8 @@ void configure_gpio(gpio_config_t *config, int gpio_num) {
 }
 
 void app_main(void) {
-    int buttonState = 0;
+    int buttonState = 0, prevButtonState = 1;
+    bool ledState = 0;
 
     gpio_config_t config[] = {
         {
@@ -32,12 +35,16 @@ void app_main(void) {
 
     while (1) {
         buttonState = gpio_get_level(BUTTON_PIN);
+        ESP_LOGI("gpio", "button state = %d", buttonState);
 
-        if (!buttonState) {
-            gpio_set_level(LED_PIN, 1);
-        } else {
-            gpio_set_level(LED_PIN, 0);
+        if (!buttonState && prevButtonState) {
+            ledState = !ledState;
+            gpio_set_level(LED_PIN, ledState);
+
+            vTaskDelay(pdMS_TO_TICKS(200));
         }
+
+        prevButtonState = buttonState;
 
         vTaskDelay(pdMS_TO_TICKS(10));
     }
