@@ -9,16 +9,7 @@
 #define BUTTON_PIN GPIO_NUM_19
 #define GPIO_NUM 2
 
-void configure_gpio(gpio_config_t *config, int gpio_num) {
-    for (int i = 0; i < gpio_num; ++i) {
-        gpio_config(&config[i]);
-    }
-}
-
-void app_main(void) {
-    int buttonState = 0, prevButtonState = 1;
-    bool ledState = 0;
-
+void configure_gpio(void) {
     gpio_config_t config[] = {
         {
             .pin_bit_mask = 1ULL << LED_PIN,
@@ -31,7 +22,16 @@ void app_main(void) {
         }
     };
 
-    configure_gpio(config, GPIO_NUM);
+    for (int i = 0; i < GPIO_NUM; ++i) {
+        gpio_config(&config[i]);
+    }
+}
+
+void app_main(void) {
+    int buttonState = 0, prevButtonState = 1;
+    bool ledState = 0;
+
+    configure_gpio();
 
     while (1) {
         buttonState = gpio_get_level(BUTTON_PIN);
